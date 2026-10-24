@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>نمایشگر مارک‌دون فارسی</title>
+<title>کتابخانه مارک‌دون</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;800&family=Noto+Naskh+Arabic:wght@400;500;700&family=Amiri:wght@400;700&family=Harmattan:wght@400;500;700&family=Noto+Kufi+Arabic:wght@400;500;700&family=Markazi+Text:wght@400;500;700&display=swap" rel="stylesheet">
@@ -11,199 +11,342 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.1.6/purify.min.js"></script>
 <style>
 :root{
-  --bg:#f4f6f9; --panel:#ffffff; --ink:#1c2430; --muted:#5d6878; --line:#dde2ea;
-  --accent:#2c4fa3; --accent-ink:#ffffff; --code-bg:#eef1f6; --quote:#e9eefb; --mark:#fff2b3;
-  --reader-font:'Vazirmatn',system-ui,sans-serif; --reader-size:18px; --reader-lh:1.95;
-  color-scheme:light;
+  --bg:#e8dbb0;--panel:#f3e9c9;--ink:#2a2214;--muted:#7b6b46;--line:#d2c294;--accent:#1f4a78;--accent-ink:#fbf6e4;
+  --soft:#e2d3a1;--code:#e6d8a8;--hover:#ebdfb5;
+  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .27 0 0 0 0 .1 0 0 0 .1 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --rf:'Vazirmatn',system-ui,sans-serif;--rs:18px;--lh:1.95;--w:46rem;color-scheme:light;
 }
-@media (prefers-color-scheme:dark){
-  :root:not([data-theme="light"]){
-    --bg:#101318; --panel:#171b22; --ink:#e6e9ee; --muted:#9aa4b2; --line:#2a313c;
-    --accent:#7fb8d8; --accent-ink:#0d1620; --code-bg:#1f2530; --quote:#1b2432; --mark:#5a4b12;
-    color-scheme:dark;
-  }
-}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#14130e;--panel:#1b1a13;--ink:#ece6d2;--muted:#a59c80;--line:#33301f;--accent:#e2c070;--accent-ink:#18140a;
+  --soft:#262318;--code:#23211a;--hover:#242117;--grain:none;color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#101318; --panel:#171b22; --ink:#e6e9ee; --muted:#9aa4b2; --line:#2a313c;
-  --accent:#7fb8d8; --accent-ink:#0d1620; --code-bg:#1f2530; --quote:#1b2432; --mark:#5a4b12;
-  color-scheme:dark;
-}
+  --bg:#14130e;--panel:#1b1a13;--ink:#ece6d2;--muted:#a59c80;--line:#33301f;--accent:#e2c070;--accent-ink:#18140a;
+  --soft:#262318;--code:#23211a;--hover:#242117;--grain:none;color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%}
 :root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:'Vazirmatn',system-ui,sans-serif;display:flex;flex-direction:column;height:100%}
-header{display:flex;flex-wrap:wrap;gap:.6rem .9rem;align-items:center;padding:.7rem 1rem;background:var(--panel);border-bottom:1px solid var(--line)}
-header h1{font-size:1.05rem;margin:0 0 0 .5rem;font-weight:800}
-.group{display:flex;align-items:center;gap:.4rem}
-label.lbl{font-size:.8rem;color:var(--muted)}
-select,button,input[type=range]{font:inherit;font-size:.88rem}
-select,button{background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:.4rem .7rem;cursor:pointer}
+body{margin:0;background-color:var(--bg);background-image:var(--grain);color:var(--ink);font-family:'Vazirmatn',system-ui,sans-serif}
+::selection{background:var(--accent);color:var(--accent-ink)}
+button,select,input{font:inherit;font-size:.88rem;color:var(--ink)}
+button,select{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:.42rem .8rem;cursor:pointer;transition:border-color .15s,background .15s}
 button:hover,select:hover{border-color:var(--accent)}
-button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
-button[aria-pressed="true"]{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-input[type=range]{width:90px;accent-color:var(--accent)}
-.spacer{flex:1}
-main{flex:1;min-height:0;display:grid;grid-template-columns:1fr 1fr}
-main[data-view="edit"]{grid-template-columns:1fr}
-main[data-view="preview"]{grid-template-columns:1fr}
-main[data-view="edit"] #reader-wrap,main[data-view="preview"] #editor-wrap{display:none}
-#editor-wrap{display:flex;flex-direction:column;border-inline-start:1px solid var(--line);min-height:0}
-#editor-wrap .bar{padding:.4rem .8rem;font-size:.8rem;color:var(--muted);border-bottom:1px solid var(--line);display:flex;justify-content:space-between}
-textarea{flex:1;width:100%;resize:none;border:0;padding:1rem;background:var(--panel);color:var(--ink);font:15px/1.7 ui-monospace,Menlo,Consolas,monospace;direction:ltr;unicode-bidi:plaintext;text-align:start}
-textarea:focus{outline:none}
-#reader-wrap{overflow:auto;min-height:0;position:relative}
-#drop{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:color-mix(in srgb,var(--bg) 88%,transparent);border:2px dashed var(--accent);font-size:1.2rem;z-index:5}
-body.dragging #drop{display:flex}
-article{max-width:46rem;margin:0 auto;padding:2rem 1.4rem 4rem;font-family:var(--reader-font);font-size:var(--reader-size);line-height:var(--reader-lh)}
-article[data-dir="rtl"]{direction:rtl}
-article[data-dir="ltr"]{direction:ltr}
-article h1,article h2,article h3,article h4{line-height:1.5;margin:1.8em 0 .6em;font-weight:700}
-article h1{font-size:1.9em;border-bottom:2px solid var(--accent);padding-bottom:.25em}
+a{color:var(--accent)}
+#scroll,#nav{scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.app{display:grid;grid-template-columns:320px minmax(0,1fr);height:100%}
+body.focus .app{grid-template-columns:minmax(0,1fr)}
+body.focus aside#side{display:none}
+aside#side{background-color:var(--panel);background-image:var(--grain);border-inline-end:1px solid var(--line);display:flex;flex-direction:column;min-height:0}
+.brand{padding:1.3rem 1.2rem .7rem}
+.brand a{text-decoration:none;color:var(--ink);font-weight:800;font-size:1.25rem;display:block}
+.brand small{display:block;color:var(--muted);font-size:.78rem;margin-top:.2rem}
+.sw{position:relative;margin:.4rem 1rem .9rem}
+#q{width:100%;padding:.6rem .9rem;padding-inline-end:2.4rem;border:1px solid var(--line);border-radius:12px;background:var(--bg)}
+#q:focus{outline:none;border-color:var(--accent)}
+.sw kbd{position:absolute;inset-inline-end:.6rem;top:50%;transform:translateY(-50%);font:inherit;font-size:.72rem;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:0 .4rem;pointer-events:none}
+#nav{flex:1;overflow:auto;padding:0 .7rem 1.5rem}
+details{margin:.2rem 0}
+summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:.55rem;padding:.55rem .6rem;border-radius:10px;font-weight:700;font-size:.92rem}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"";width:.42rem;height:.42rem;border-inline-end:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s;margin-inline-start:.3rem}
+details:not([open]) summary::after{transform:rotate(135deg)}
+summary:hover{background:var(--hover)}
+.d{width:.7rem;height:.7rem;border-radius:50%;background:hsl(var(--h) 48% 42%);flex:none}
+.n{margin-inline-start:auto;font-weight:400;font-size:.75rem;color:var(--muted);background:var(--bg);border-radius:99px;padding:.05rem .55rem}
+.f{display:block;position:relative;padding:.42rem .8rem;margin:1px 0;margin-inline-start:1.3rem;border-radius:10px;text-decoration:none;color:var(--ink);font-size:.88rem;border-inline-start:2px solid var(--line)}
+.f:hover{background:var(--hover)}
+.f.on{background:var(--soft);border-inline-start-color:var(--accent);font-weight:700}
+.f.seen:not(.on){color:var(--muted)}
+.f.seen::after{content:"✓";position:absolute;inset-inline-end:.7rem;top:50%;transform:translateY(-50%);font-size:.7rem;color:var(--muted)}
+main{display:flex;flex-direction:column;min-width:0;min-height:0;position:relative}
+#prog{position:absolute;top:0;inset-inline:0;height:3px;background:var(--accent);transform:scaleX(0);transform-origin:right;z-index:6;pointer-events:none}
+.bar{display:flex;align-items:center;gap:.5rem;padding:.65rem 1rem;background-color:var(--panel);background-image:var(--grain);border-bottom:1px solid var(--line);z-index:5}
+#menu{display:none}
+.crumb{font-size:.85rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.sp{flex:1}
+#pop{position:absolute;top:3.5rem;inset-inline-end:.8rem;width:290px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1rem;display:none;z-index:15;box-shadow:0 12px 32px rgba(40,30,10,.22)}
+#pop.show{display:block}
+#pop label{display:flex;justify-content:space-between;align-items:center;gap:.8rem;font-size:.82rem;color:var(--muted);margin-bottom:.9rem}
+#pop label:last-child{margin-bottom:0}
+#pop select{max-width:150px}
+input[type=range]{width:150px;accent-color:var(--accent);padding:0}
+#scroll{flex:1;overflow:auto;scroll-behavior:smooth}
+.page{display:grid;grid-template-columns:minmax(0,var(--w));justify-content:center;gap:2.5rem;padding:2.2rem 1.4rem 5rem;animation:in .3s ease}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.page{animation:none}#scroll{scroll-behavior:auto}}
+@media (min-width:1200px){.page.has-toc{grid-template-columns:minmax(0,var(--w)) 14.5rem}}
+#toc{position:sticky;top:1rem;align-self:start;font-size:.82rem;display:none;border-inline-start:2px solid var(--line);padding-inline-start:.9rem;max-height:82vh;overflow:auto}
+@media (min-width:1200px){.has-toc #toc{display:block}}
+#toc b{display:block;margin-bottom:.6rem;color:var(--muted);font-weight:500}
+#toc a{display:block;color:var(--muted);padding:.28rem 0;cursor:pointer;line-height:1.6;border-inline-start:2px solid transparent;margin-inline-start:calc(-.9rem - 2px);padding-inline-start:calc(.9rem)}
+#toc a:hover{color:var(--ink)}
+#toc a.l3{padding-inline-start:1.7rem}
+#toc a.on{color:var(--accent);border-inline-start-color:var(--accent);font-weight:700}
+.meta{color:var(--muted);font-size:.82rem;margin-bottom:.4rem}
+article{font-family:var(--rf);font-size:var(--rs);line-height:var(--lh);min-width:0}
+article h1,article h2,article h3,article h4{line-height:1.5;margin:1.9em 0 .6em;font-weight:700;scroll-margin-top:1rem}
+article>h1:first-child{margin-top:.2em}
+article h1{font-size:2em;font-weight:800;padding-bottom:.3em;border-bottom:3px double var(--accent)}
 article h2{font-size:1.5em;border-bottom:1px solid var(--line);padding-bottom:.2em}
 article h3{font-size:1.25em}
 article p,article li{margin:.7em 0}
-article a{color:var(--accent)}
-article blockquote{margin:1.2em 0;padding:.4em 1.1em;background:var(--quote);border-inline-start:4px solid var(--accent);border-radius:6px}
+article li::marker{color:var(--accent)}
+article blockquote{margin:1.3em 0;padding:.5em 1.2em;background:var(--soft);border-inline-start:4px solid var(--accent);border-radius:10px}
 article blockquote p{margin:.4em 0}
-article code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;background:var(--code-bg);padding:.12em .4em;border-radius:5px;direction:ltr;unicode-bidi:isolate}
-article pre{background:var(--code-bg);padding:1rem;border-radius:10px;overflow-x:auto;direction:ltr;text-align:left;line-height:1.6;border:1px solid var(--line)}
+article code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85em;background:var(--code);padding:.12em .4em;border-radius:6px;direction:ltr;unicode-bidi:isolate}
+article pre{position:relative;background:var(--code);padding:1.1rem;padding-top:2.3rem;border-radius:12px;overflow-x:auto;direction:ltr;text-align:left;line-height:1.6;border:1px solid var(--line)}
 article pre code{background:none;padding:0}
-article table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:1.2em 0}
-article th,article td{border:1px solid var(--line);padding:.45em .8em;text-align:start}
-article th{background:var(--code-bg)}
-article img{max-width:100%;border-radius:8px}
-article hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+.cp{position:absolute;top:.5rem;right:.5rem;padding:.12rem .6rem;font-size:.74rem;border-radius:8px;opacity:.75}
+.cp:hover{opacity:1}
+article table{border-collapse:collapse;display:block;overflow-x:auto;max-width:100%;margin:1.3em 0}
+article th,article td{border:1px solid var(--line);padding:.5em .9em;text-align:start}
+article th{background:var(--soft)}
+article tr:nth-child(even) td{background:color-mix(in srgb,var(--soft) 40%,transparent)}
+article img{max-width:100%;border-radius:10px}
+article hr{border:0;border-top:1px dashed var(--muted);margin:2.2em 0}
 article ul,article ol{padding-inline-start:1.6em}
-article li input[type=checkbox]{margin-inline-end:.4em}
-.empty{color:var(--muted);text-align:center;margin-top:4rem}
-@media (max-width:820px){
-  main{grid-template-columns:1fr}
-  main[data-view="split"] #reader-wrap{display:none}
-  header h1{width:100%}
+.pn{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:3.5rem}
+.pn a{display:block;padding:1rem 1.2rem;border:1px solid var(--line);border-radius:14px;text-decoration:none;color:var(--ink);background:var(--panel);transition:transform .15s,border-color .15s}
+.pn a:hover{border-color:var(--accent);transform:translateY(-2px)}
+.pn small{display:block;color:var(--muted);font-size:.75rem}
+.pn .nx{text-align:end}
+.hero{max-width:62rem;margin:0 auto;padding:3.5rem 1.4rem}
+.hero h1{font-size:2.4rem;font-weight:800;margin:0 0 .4rem}
+.hero>p{color:var(--muted);margin:0 0 2rem}
+.resume{display:block;padding:1.1rem 1.3rem;margin-bottom:1.6rem;border-radius:16px;background:var(--accent);color:var(--accent-ink);text-decoration:none}
+.resume small{display:block;opacity:.8;font-size:.78rem}
+.resume b{font-size:1.1rem}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:1.1rem}
+.card{background:var(--panel);border:1px solid var(--line);border-top:4px solid hsl(var(--h) 48% 42%);border-radius:14px;padding:1.1rem 1.2rem}
+.card h2{margin:0 0 .2rem;font-size:1.08rem}
+.card .c{color:var(--muted);font-size:.78rem;margin-bottom:.6rem}
+.card a{display:block;padding:.3rem 0;text-decoration:none;color:var(--ink);font-size:.9rem;border-top:1px solid var(--line)}
+.card a:hover{color:var(--accent)}
+.note{background:var(--soft);border-radius:12px;padding:.7rem 1rem;margin-bottom:1.5rem;font-size:.85rem}
+.empty{color:var(--muted);padding:1rem}
+#shade{display:none}
+@media (max-width:860px){
+  .app{grid-template-columns:1fr}
+  aside#side{position:fixed;top:0;bottom:0;inset-inline-start:0;width:min(86vw,340px);z-index:20;transform:translateX(100%);transition:transform .2s;padding-top:env(safe-area-inset-top,0px)}
+  body.open aside#side{transform:none}
+  body.open #shade{display:block;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10}
+  #menu{display:inline-block}
+  #focus{display:none}
+  #pop{inset-inline:.8rem;width:auto}
+  .hero h1{font-size:1.8rem}
+  .pn{grid-template-columns:1fr}
 }
-@media print{
-  header,#editor-wrap,#drop{display:none!important}
-  html,body,main,#reader-wrap{height:auto;overflow:visible;display:block}
-  body{background:#fff;color:#000}
-}
+@media print{aside#side,.bar,#toc,.pn,#pop,#prog,.cp{display:none!important}html,body,.app,main,#scroll{display:block;height:auto;overflow:visible}body{background:#fff;color:#000}}
 </style>
 </head>
 <body>
-<header>
-  <h1>نمایشگر مارک‌دون</h1>
-  <div class="group">
-    <button class="primary" id="open">باز کردن فایل</button>
-    <input type="file" id="file" accept=".md,.markdown,.txt,text/markdown,text/plain" hidden>
-  </div>
-  <div class="group">
-    <label class="lbl" for="font">فونت</label>
-    <select id="font">
-      <option value="'Vazirmatn',system-ui,sans-serif">وزیرمتن</option>
-      <option value="'Noto Naskh Arabic',serif">نسخ</option>
-      <option value="'Amiri',serif">امیری</option>
-      <option value="'Harmattan',sans-serif">هارماتان</option>
-      <option value="'Noto Kufi Arabic',sans-serif">کوفی</option>
-      <option value="'Markazi Text',serif">مرکزی</option>
-    </select>
-  </div>
-  <div class="group">
-    <label class="lbl" for="size">اندازه</label>
-    <input type="range" id="size" min="14" max="28" step="1" value="18">
-  </div>
-  <div class="group">
-    <label class="lbl" for="lh">فاصله خطوط</label>
-    <input type="range" id="lh" min="14" max="26" step="1" value="19">
-  </div>
-  <div class="group">
-    <button id="dir" title="جهت متن">راست‌چین</button>
-    <button id="theme" title="تغییر تم">تم تیره</button>
-  </div>
-  <div class="spacer"></div>
-  <div class="group" role="group" aria-label="حالت نمایش">
-    <button data-v="edit">ویرایش</button>
-    <button data-v="split">دو ستونه</button>
-    <button data-v="preview">خواندن</button>
-  </div>
-  <button id="print">چاپ / PDF</button>
-</header>
-<main id="main" data-view="split">
-  <section id="editor-wrap">
-    <div class="bar"><span>متن مارک‌دون را اینجا بچسبانید</span><span id="count"></span></div>
-    <textarea id="src" spellcheck="false" placeholder="# عنوان&#10;متن خود را اینجا بنویسید یا فایل را بکشید و رها کنید…"></textarea>
-  </section>
-  <section id="reader-wrap">
-    <div id="drop">فایل را اینجا رها کنید</div>
-    <article id="out" data-dir="rtl"></article>
-  </section>
-</main>
+<div class="app">
+  <aside id="side">
+    <div class="brand"><a href="#" id="home">کتابخانه مارک‌دون</a><small id="stat"></small></div>
+    <div class="sw"><input id="q" type="search" placeholder="جستجو در عنوان‌ها…" aria-label="جستجو"><kbd>/</kbd></div>
+    <nav id="nav" aria-label="دسته‌بندی‌ها"></nav>
+  </aside>
+  <div id="shade"></div>
+  <main>
+    <div id="prog"></div>
+    <div class="bar">
+      <button id="menu" aria-label="فهرست">☰ فهرست</button>
+      <div class="crumb" id="crumb"></div>
+      <div class="sp"></div>
+      <button id="aa" aria-label="تنظیمات خواندن">Aa</button>
+      <button id="focus" aria-pressed="false" title="پنهان کردن فهرست (F)">تمرکز</button>
+      <button id="theme">☾ تیره</button>
+    </div>
+    <div id="pop" role="dialog" aria-label="تنظیمات خواندن">
+      <label>فونت<select id="font">
+        <option value="'Vazirmatn',system-ui,sans-serif">وزیرمتن</option>
+        <option value="'Noto Naskh Arabic',serif">نسخ</option>
+        <option value="'Amiri',serif">امیری</option>
+        <option value="'Harmattan',sans-serif">هارماتان</option>
+        <option value="'Noto Kufi Arabic',sans-serif">کوفی</option>
+        <option value="'Markazi Text',serif">مرکزی</option>
+      </select></label>
+      <label>اندازه<input id="size" type="range" min="14" max="28" value="18"></label>
+      <label>فاصله خطوط<input id="lh" type="range" min="14" max="26" value="19"></label>
+      <label>پهنای متن<input id="wd" type="range" min="34" max="64" value="46"></label>
+    </div>
+    <div id="scroll"><div id="view"></div></div>
+  </main>
+</div>
 <script>
 (function(){
-  var $=function(i){return document.getElementById(i)};
-  var src=$('src'),out=$('out'),main=$('main'),root=document.documentElement;
-  var sample='# به نمایشگر مارک‌دون خوش آمدید\n\nاین یک **نمونه‌ی ساده** است. متن یا فایل مارک‌دون خود را جایگزین کنید تا با فونت و تم دلخواه نمایش داده شود.\n\n## امکانات\n\n- پشتیبانی کامل از راست‌به‌چپ\n- شش فونت فارسی\n- تم روشن و تیره\n- باز کردن فایل `.md` یا کشیدن و رها کردن\n\n> مارک‌دون برای نوشتن سریع و خوانا ساخته شده است.\n\n### جدول\n\n| ستون اول | ستون دوم |\n|---|---|\n| الف | ب |\n| ج | د |\n\n### کد\n\n```python\nprint("سلام دنیا")\n```\n\n- [x] کار انجام‌شده\n- [ ] کار باقی‌مانده\n';
-  var st={};
-  function load(){try{st=JSON.parse(localStorage.getItem('mdv')||'{}')}catch(e){st={}}}
-  function save(){try{localStorage.setItem('mdv',JSON.stringify(st))}catch(e){}}
-  load();
+/* ---------- تنظیمات ---------- */
+// اگر آدرس سایت شما github.io نیست (دامنه‌ی اختصاصی)، این دو مقدار را پر کنید:
+var CFG={owner:'',repo:'',title:'کتابخانه مارک‌دون'};
 
-  function render(){
-    var t=src.value;
-    $('count').textContent=t.length?t.length.toLocaleString('fa-IR')+' نویسه':'';
-    if(!t.trim()){out.innerHTML='<p class="empty">هنوز متنی وارد نشده است. متن را بچسبانید یا فایلی را باز کنید.</p>';return}
-    if(!window.marked||!window.DOMPurify){out.textContent='بارگذاری کتابخانه‌ها ناموفق بود. اتصال اینترنت را بررسی کنید.';return}
-    var html=DOMPurify.sanitize(marked.parse(t,{gfm:true,breaks:true}));
-    out.innerHTML=html;
-    out.querySelectorAll('p,li,h1,h2,h3,h4,h5,h6,blockquote,th,td').forEach(function(el){el.setAttribute('dir','auto')});
-  }
-  var timer;
-  src.addEventListener('input',function(){clearTimeout(timer);timer=setTimeout(function(){render();st.text=src.value;save()},150)});
+var $=function(i){return document.getElementById(i)},root=document.documentElement;
+var items=[],cur=null,demo=false,cache={},st={};
+var DEMO=[
+ {path:'آموزش/01-شروع-سریع.md',text:'# شروع سریع\n\nاین یک **فایل نمایشی** است. پوشه‌ها به‌عنوان دسته‌بندی شناخته می‌شوند.\n\n## مراحل\n\n1. یک پوشه بسازید\n2. فایل `.md` داخلش بگذارید\n3. کامیت کنید و صبر کنید\n\n### نکته\n\n> نام فایل می‌تواند با عدد شروع شود تا ترتیب را تعیین کند.'},
+ {path:'آموزش/02-نوشتن-مارک‌دون.md',text:'# نوشتن مارک‌دون\n\n## جدول\n\n| نماد | معنی |\n|---|---|\n| `#` | عنوان |\n| `**` | پررنگ |\n\n## کد\n\n```js\nconsole.log("سلام");\n```'},
+ {path:'یادداشت‌ها/مرور-هفتگی.md',text:'---\ntitle: مرور هفتگی\n---\n\n## کارهای انجام‌شده\n\n- [x] خواندن فصل اول\n- [x] جمع‌بندی\n\n## کارهای باقی‌مانده\n\n- [ ] تمرین'}
+];
+function load(){try{st=JSON.parse(localStorage.getItem('mdl')||'{}')}catch(e){st={}}}
+function save(){try{localStorage.setItem('mdl',JSON.stringify(st))}catch(e){}}
+load();
 
-  function setTheme(m){
-    root.setAttribute('data-theme',m);st.theme=m;save();
-    $('theme').textContent=m==='dark'?'تم روشن':'تم تیره';
-  }
-  $('theme').onclick=function(){setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark')};
+/* ---------- کمک‌ها ---------- */
+function pretty(s){var r=s.replace(/\.(md|markdown)$/i,'').replace(/[-_]+/g,' ');var t=r.replace(/^\d+[\s.)-]*/,'');return(t||r).trim()}
+function hue(s){var h=0;for(var i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))%360;return (h%2?h:(h+60)%360)}
+function fa(n){return Number(n).toLocaleString('fa-IR')}
+function esc(s){return s.replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function mk(path,title){
+  var p=path.split('/'),name=p.pop();
+  return{path:path,name:name,cat:p.join('/'),catName:p.map(pretty).join(' › ')||'عمومی',title:title||pretty(name)};
+}
+function accept(path){
+  if(!/\.(md|markdown)$/i.test(path))return false;
+  var p=path.split('/');
+  if(p.length===1&&/^readme\./i.test(p[0]))return false;
+  for(var i=0;i<p.length-1;i++)if(/^[._]/.test(p[i])||p[i]==='node_modules')return false;
+  return true;
+}
+var coll=new Intl.Collator('fa',{numeric:true});
+function sortItems(){items.sort(function(a,b){return coll.compare(a.cat,b.cat)||coll.compare(a.name,b.name)})}
+function strip(t){
+  var m=t.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?/),title=null;
+  if(m){var x=m[1].match(/^title:\s*["']?(.+?)["']?\s*$/m);if(x)title=x[1];t=t.slice(m[0].length)}
+  return{body:t,title:title};
+}
 
-  function setFont(v){root.style.setProperty('--reader-font',v);$('font').value=v;st.font=v;save()}
-  $('font').onchange=function(){setFont(this.value)};
-  function setSize(v){root.style.setProperty('--reader-size',v+'px');$('size').value=v;st.size=v;save()}
-  $('size').oninput=function(){setSize(this.value)};
-  function setLh(v){root.style.setProperty('--reader-lh',(v/10).toFixed(1));$('lh').value=v;st.lh=v;save()}
-  $('lh').oninput=function(){setLh(this.value)};
+/* ---------- بارگذاری فهرست فایل‌ها ---------- */
+function detectRepo(){
+  var o=CFG.owner,r=CFG.repo,h=location.hostname;
+  if(!o&&/\.github\.io$/i.test(h)){o=h.split('.')[0];var seg=location.pathname.split('/')[1];r=(seg&&seg.indexOf('.')<0)?seg:o+'.github.io'}
+  return o&&r?{o:o,r:r}:null;
+}
+function discover(){
+  return fetch('library.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+    return j.filter(function(x){return accept(x.path)}).map(function(x){return mk(x.path,x.title)});
+  }).catch(function(){
+    var d=detectRepo();if(!d)throw 0;
+    return fetch('https://api.github.com/repos/'+d.o+'/'+d.r+'/git/trees/HEAD?recursive=1').then(function(r){if(!r.ok)throw 0;return r.json()}).then(function(j){
+      return j.tree.filter(function(x){return x.type==='blob'&&accept(x.path)}).map(function(x){return mk(x.path)});
+    });
+  });
+}
+function getText(it){
+  if(cache[it.path]!=null)return Promise.resolve(cache[it.path]);
+  if(demo){var d=DEMO.filter(function(x){return x.path===it.path})[0];cache[it.path]=d.text;return Promise.resolve(d.text)}
+  return fetch(it.path.split('/').map(encodeURIComponent).join('/')).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){cache[it.path]=t;return t});
+}
 
-  function setDir(d){out.setAttribute('data-dir',d);st.dir=d;save();$('dir').textContent=d==='rtl'?'راست‌چین':'چپ‌چین'}
-  $('dir').onclick=function(){setDir(out.getAttribute('data-dir')==='rtl'?'ltr':'rtl')};
+/* ---------- نوار کناری ---------- */
+function groups(list){
+  var g={},order=[];
+  list.forEach(function(it){if(!g[it.cat]){g[it.cat]={name:it.catName,items:[]};order.push(it.cat)}g[it.cat].items.push(it)});
+  return order.map(function(k){return g[k]});
+}
+function href(it){return '#'+encodeURIComponent(it.path)}
+function renderNav(){
+  var q=$('q').value.trim().toLowerCase(),list=items;
+  if(q)list=items.filter(function(it){return (it.title+' '+it.catName).toLowerCase().indexOf(q)>=0});
+  var html=groups(list).map(function(g){
+    return '<details'+(q||g.items.some(function(i){return cur&&i.path===cur.path})||!cur?' open':'')+'><summary><i class="d" style="--h:'+hue(g.items[0].cat)+'"></i>'+esc(g.name)+'<span class="n">'+fa(g.items.length)+'</span></summary>'+
+      g.items.map(function(i){return '<a class="f'+(cur&&cur.path===i.path?' on':'')+(st.read&&st.read[i.path]?' seen':'')+'" href="'+href(i)+'">'+esc(i.title)+'</a>'}).join('')+'</details>';
+  }).join('');
+  $('nav').innerHTML=html||'<div class="empty">موردی پیدا نشد.</div>';
+}
+$('q').addEventListener('input',renderNav);
 
-  function setView(v){
-    main.setAttribute('data-view',v);st.view=v;save();
-    document.querySelectorAll('[data-v]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.v===v)});
-  }
-  document.querySelectorAll('[data-v]').forEach(function(b){b.onclick=function(){setView(b.dataset.v)}});
+/* ---------- صفحه‌ی اصلی ---------- */
+function resume(){var l=st.last&&items.filter(function(x){return x.path===st.last})[0];return l?'<a class="resume" href="'+href(l)+'"><small>ادامه‌ی مطالعه</small><b>'+esc(l.title)+'</b></a>':''}
+function renderHome(){
+  cur=null;document.title=CFG.title;$('crumb').textContent='';
+  var gs=groups(items);
+  var h='<div class="hero"><h1>'+esc(CFG.title)+'</h1><p>'+fa(items.length)+' نوشته در '+fa(gs.length)+' دسته</p>'+
+    (demo?'<div class="note">حالت نمایشی: فهرست فایل‌های مخزن پیدا نشد، پس نمونه‌ها نشان داده می‌شوند. روی github.io یا با فایل <code>library.json</code> فایل‌های واقعی شما نمایش داده می‌شود.</div>':'')+
+    resume()+'<div class="cards">'+gs.map(function(g){
+      return '<section class="card" style="--h:'+hue(g.items[0].cat)+'"><h2>'+esc(g.name)+'</h2><div class="c">'+fa(g.items.length)+' نوشته</div>'+
+        g.items.slice(0,5).map(function(i){return '<a href="'+href(i)+'">'+esc(i.title)+'</a>'}).join('')+
+        (g.items.length>5?'<a href="'+href(g.items[5])+'">و '+fa(g.items.length-5)+' مورد دیگر…</a>':'')+'</section>';
+    }).join('')+'</div></div>';
+  $('view').innerHTML=h;$('scroll').scrollTop=0;renderNav();
+}
 
-  function readFile(f){
-    if(!f)return;
-    var r=new FileReader();
-    r.onload=function(){src.value=r.result;st.text=r.result;save();render();if(matchMedia('(max-width:820px)').matches)setView('preview')};
-    r.readAsText(f,'utf-8');
-  }
-  $('open').onclick=function(){$('file').click()};
-  $('file').onchange=function(){readFile(this.files[0]);this.value=''};
-  ['dragenter','dragover'].forEach(function(e){window.addEventListener(e,function(ev){ev.preventDefault();document.body.classList.add('dragging')})});
-  ['dragleave','drop'].forEach(function(e){window.addEventListener(e,function(ev){ev.preventDefault();if(e==='drop'||ev.target===document.documentElement)document.body.classList.remove('dragging')})});
-  window.addEventListener('drop',function(ev){readFile(ev.dataTransfer.files[0])});
-  $('print').onclick=function(){window.print()};
+/* ---------- نمایش یک فایل ---------- */
+function slug(t,used){
+  var s=t.trim().replace(/[^\p{L}\p{N}]+/gu,'-').replace(/^-|-$/g,'')||'h';
+  var b=s,i=2;while(used[s])s=b+'-'+i++;used[s]=1;return s;
+}
+function openFile(it){
+  cur=it;st.read=st.read||{};st.read[it.path]=1;st.last=it.path;save();renderNav();
+  $('view').innerHTML='<div class="hero"><p>در حال بارگذاری…</p></div>';
+  getText(it).then(function(raw){
+    if(cur!==it)return;
+    var s=strip(raw),html=DOMPurify.sanitize(marked.parse(s.body,{gfm:true,breaks:true}));
+    var box=document.createElement('div');box.innerHTML=html;
+    var h1=box.querySelector('h1'),title=s.title||(h1&&h1.textContent)||it.title;
+    box.querySelectorAll('p,li,h1,h2,h3,h4,h5,h6,blockquote,th,td').forEach(function(e){e.setAttribute('dir','auto')});
+    box.querySelectorAll('pre').forEach(function(p){var b=document.createElement('button');b.className='cp';b.type='button';b.textContent='کپی';p.appendChild(b)});
+    var used={},toc=[];
+    box.querySelectorAll('h2,h3').forEach(function(h){h.id=slug(h.textContent,used);toc.push('<a class="'+(h.tagName==='H3'?'l3':'')+'" data-id="'+h.id+'">'+esc(h.textContent)+'</a>')});
+    var words=(s.body.match(/\S+/g)||[]).length,mins=Math.max(1,Math.round(words/180));
+    var sib=items.filter(function(x){return x.cat===it.cat}),ix=sib.indexOf(it),pv=sib[ix-1],nx=sib[ix+1];
+    $('view').innerHTML='<div class="page'+(toc.length>1?' has-toc':'')+'"><div><div class="meta">'+esc(it.catName)+' · '+fa(mins)+' دقیقه مطالعه</div><article id="art">'+box.innerHTML+'</article>'+
+      '<div class="pn">'+(pv?'<a href="'+href(pv)+'"><small>قبلی</small>'+esc(pv.title)+'</a>':'<span></span>')+(nx?'<a class="nx" href="'+href(nx)+'"><small>بعدی</small>'+esc(nx.title)+'</a>':'<span></span>')+'</div></div>'+
+      (toc.length>1?'<nav id="toc"><b>در این صفحه</b>'+toc.join('')+'</nav>':'')+'</div>';
+    $('crumb').textContent=it.catName+' › '+title;document.title=title+' | '+CFG.title;
+    $('scroll').scrollTop=0;
+    var t=$('toc');if(t)t.onclick=function(e){var id=e.target.getAttribute&&e.target.getAttribute('data-id');if(id){var el=document.getElementById(id);if(el)el.scrollIntoView()}};
+    spy();$('prog').style.transform='scaleX(0)';
+  }).catch(function(){
+    $('view').innerHTML='<div class="hero"><p>فایل بارگذاری نشد.</p></div>';
+  });
+}
 
-  // init
-  var dark=window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches;
-  setTheme(st.theme||(dark?'dark':'light'));
-  if(st.font)setFont(st.font);
-  if(st.size)setSize(st.size);
-  if(st.lh)setLh(st.lh);
-  setDir(st.dir||'rtl');
-  setView(st.view||(matchMedia('(max-width:820px)').matches?'edit':'split'));
-  src.value=st.text!=null?st.text:sample;
-  render();
+/* ---------- مسیریابی ---------- */
+function route(){
+  document.body.classList.remove('open');
+  var p='';try{p=decodeURIComponent(location.hash.slice(1))}catch(e){}
+  var it=items.filter(function(x){return x.path===p})[0];
+  if(it)openFile(it);else renderHome();
+}
+window.addEventListener('hashchange',route);
+$('home').onclick=function(e){e.preventDefault();location.hash='';route()};
+$('menu').onclick=function(){document.body.classList.add('open')};
+$('shade').onclick=function(){document.body.classList.remove('open')};
+
+/* ---------- ظاهر ---------- */
+function setTheme(m){root.setAttribute('data-theme',m);st.theme=m;save();$('theme').textContent=m==='dark'?'☀ روشن':'☾ تیره'}
+$('theme').onclick=function(){setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark')};
+function setFont(v){root.style.setProperty('--rf',v);$('font').value=v;st.font=v;save()}
+$('font').onchange=function(){setFont(this.value)};
+function setSize(v){root.style.setProperty('--rs',v+'px');$('size').value=v;st.size=v;save()}
+$('size').oninput=function(){setSize(this.value)};
+function setLh(v){root.style.setProperty('--lh',(v/10).toFixed(1));$('lh').value=v;st.lh=v;save()}
+$('lh').oninput=function(){setLh(this.value)};
+function setW(v){root.style.setProperty('--w',v+'rem');$('wd').value=v;st.w=v;save()}
+$('wd').oninput=function(){setW(this.value)};
+if(st.lh)setLh(st.lh);
+if(st.w)setW(st.w);
+$('aa').onclick=function(e){e.stopPropagation();$('pop').classList.toggle('show')};
+document.addEventListener('click',function(e){if(!e.target.closest('#pop'))$('pop').classList.remove('show')});
+function setFocus(on){document.body.classList.toggle('focus',on);$('focus').setAttribute('aria-pressed',on)}
+$('focus').onclick=function(){setFocus(!document.body.classList.contains('focus'))};
+function spy(){var t=$('toc');if(!t)return;var top=$('scroll').getBoundingClientRect().top+90,a=null;
+  document.querySelectorAll('#art h2,#art h3').forEach(function(h){if(h.getBoundingClientRect().top<=top)a=h.id});
+  t.querySelectorAll('a').forEach(function(x){x.classList.toggle('on',x.getAttribute('data-id')===a)})}
+$('scroll').addEventListener('scroll',function(){var s=this,m=s.scrollHeight-s.clientHeight;$('prog').style.transform='scaleX('+(m>0?s.scrollTop/m:0)+')';spy()});
+$('view').addEventListener('click',function(e){var b=e.target;if(b.classList&&b.classList.contains('cp')){var c=b.parentNode.querySelector('code');try{navigator.clipboard.writeText(c.textContent);b.textContent='کپی شد';setTimeout(function(){b.textContent='کپی'},1400)}catch(x){}}});
+document.addEventListener('keydown',function(e){var tg=e.target.tagName;if(e.key==='Escape'){$('pop').classList.remove('show');document.body.classList.remove('open');$('q').blur();return}
+  if(tg==='INPUT'||tg==='SELECT'||e.ctrlKey||e.metaKey||e.altKey)return;
+  if(e.key==='/'){e.preventDefault();setFocus(false);document.body.classList.add('open');$('q').focus()}
+  else if(e.key==='f'||e.key==='F'){$('focus').click()}});
+setTheme(st.theme||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light'));
+if(st.font)setFont(st.font);
+if(st.size)setSize(st.size);
+
+/* ---------- شروع ---------- */
+discover().then(function(l){items=l}).catch(function(){demo=true;items=DEMO.map(function(d){return mk(d.path,strip(d.text).title)})}).then(function(){
+  sortItems();$('stat').textContent=fa(items.length)+' نوشته';route();
+});
 })();
 </script>
 </body>

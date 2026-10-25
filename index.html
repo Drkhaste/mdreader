@@ -7,7 +7,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="کتابخانه">
+<meta name="apple-mobile-web-app-title" content="mdkhaste">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/icon-192.png">
@@ -346,14 +346,6 @@ a.dk:hover .stk i:nth-child(2){transform:rotate(14deg) translateX(10px)}
   .pm-hint{display:none}.pm-foot{justify-content:stretch}.pm-go{flex:1;justify-content:center}
 }
 /* نصب اپ */
-#inst{position:fixed;z-index:35;bottom:calc(16px + env(safe-area-inset-bottom,0px));inset-inline:12px;margin-inline:auto;max-width:440px;display:none;align-items:center;gap:.8rem;padding:.7rem .8rem;border-radius:20px;background:color-mix(in srgb,var(--panel) 62%,transparent);-webkit-backdrop-filter:blur(20px) saturate(1.7);backdrop-filter:blur(20px) saturate(1.7);border:1px solid color-mix(in srgb,var(--ink) 14%,transparent);box-shadow:0 14px 40px rgba(0,0,0,.28)}
-#inst.show{display:flex;animation:in .4s ease}
-#inst img{width:44px;height:44px;border-radius:12px;flex:none}
-#inst .it{flex:1;min-width:0;line-height:1.5}
-#inst .it b{display:block;font-size:.92rem}
-#inst .it small{display:block;color:var(--muted);font-size:.74rem;line-height:1.6}
-#inst-go{padding:.55rem 1.1rem;border-radius:12px;background:var(--accent);color:var(--accent-ink);font-weight:800;border:0;flex:none}
-#inst-x{width:34px;height:34px;border-radius:10px;border:0;background:transparent;color:var(--muted);flex:none}
 #dg{position:fixed;inset:0;z-index:75;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(15,10,3,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #dg.show{display:flex}
 .dg-box{width:min(520px,100%);max-height:88vh;overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:1.2rem 1.3rem;box-shadow:var(--shadow)}
@@ -365,7 +357,7 @@ a.dk:hover .stk i:nth-child(2){transform:rotate(14deg) translateX(10px)}
 .pop-acts .fc-btn{justify-content:center}
 #toast{position:fixed;z-index:80;bottom:calc(24px + env(safe-area-inset-bottom,0px));left:50%;transform:translate(-50%,20px);padding:.6rem 1.1rem;border-radius:14px;background:var(--ink);color:var(--bg);font-size:.85rem;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
 #toast.show{opacity:1;transform:translate(-50%,0)}
-@media print{#pdfm,#inst,#dg,#toast,#sk,#top,aside#side,#toc,.pn,#pop,#pal,.cp,.bc{display:none!important}html,body,.app,main,#scroll{display:block;height:auto;overflow:visible}body{background:#fff;color:#000}}
+@media print{#pdfm,#dg,#toast,#sk,#top,aside#side,#toc,.pn,#pop,#pal,.cp,.bc{display:none!important}html,body,.app,main,#scroll{display:block;height:auto;overflow:visible}body{background:#fff;color:#000}}
 </style>
 </head>
 <body>
@@ -407,7 +399,6 @@ a.dk:hover .stk i:nth-child(2){transform:rotate(14deg) translateX(10px)}
   <div class="pm-pv"><div class="pm-pvin"><iframe id="pm-if" title="پیش‌نمایش PDF"></iframe></div><span class="pm-badge" id="pm-pg"></span></div>
   <div class="pm-foot"><span class="pm-hint">پیش‌نمایش زنده · تغییر تم و گزینه‌ها فوری اعمال می‌شود</span><button type="button" id="pm-go" class="pm-go"><i data-ic="pdf"></i>ساخت PDF</button><button type="button" id="pm-x">بستن</button></div>
 </div></div>
-<div id="inst" role="dialog" aria-label="نصب اپ"><img src="icons/icon-192.png" alt=""><div class="it"><b>اپ را نصب کنید</b><small id="inst-t">تمام‌صفحه و سریع، بدون نوار مرورگر</small></div><button type="button" id="inst-go">نصب</button><button type="button" id="inst-x" aria-label="بستن">✕</button></div>
 <div id="dg"><div class="dg-box"><b>عیب‌یابی نصب اپ</b><div id="dg-b"></div><button type="button" id="dg-x">بستن</button></div></div>
 <div id="toast" role="status"></div>
 <div id="pal"><div class="box">
@@ -1206,35 +1197,15 @@ $('view').addEventListener('click',function(e){var b=e.target.closest&&e.target.
 $('pop-pdf').onclick=function(){openPdf(fc&&fcv===fc.d?'deck':'lesson')};
 
 /* ---------- نصب اپ (PWA) ---------- */
-var deferred=window.__bip||null,instT=0;
+var deferred=window.__bip||null;
 var isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
 function isStandalone(){return matchMedia('(display-mode: standalone)').matches||matchMedia('(display-mode: fullscreen)').matches||matchMedia('(display-mode: minimal-ui)').matches||navigator.standalone===true}
-function instDismissed(){try{var t=+localStorage.getItem('inst-dismiss')||0;return Date.now()-t<5*864e5}catch(e){return false}}
-function showInstall(force){
-  if(isStandalone())return;
-  if(!force&&instDismissed())return;
-  var ios=!deferred&&isIOS;
-  if(!deferred&&!ios)return;
-  $('inst-t').textContent=ios?'در Safari دکمهٔ Share را بزنید و «Add to Home Screen» را انتخاب کنید':'تمام‌صفحه و سریع، بدون نوار مرورگر';
-  $('inst-go').textContent=ios?'فهمیدم':'نصب';
-  clearTimeout(instT);
-  instT=setTimeout(function(){$('inst').classList.add('show')},force?0:2500);
-}
-function hideInstall(remember){
-  clearTimeout(instT);$('inst').classList.remove('show');
-  if(remember){try{localStorage.setItem('inst-dismiss',String(Date.now()))}catch(e){}}
-}
 function doInstall(){
-  if(deferred){
-    var e=deferred;deferred=null;hideInstall(false);
-    e.prompt();e.userChoice.then(function(r){if(r&&r.outcome==='accepted')toast('در حال نصب…');else hideInstall(true)});
-  }else if(isIOS){hideInstall(true)}
+  var e=deferred;deferred=null;if(!e)return;
+  e.prompt();e.userChoice.then(function(r){if(r&&r.outcome==='accepted')toast('در حال نصب…')});
 }
-window.__bipCb=function(e){deferred=e;showInstall()};
-window.addEventListener('appinstalled',function(){deferred=null;hideInstall(false);toast('اپ نصب شد ✓')});
-$('inst-go').onclick=doInstall;
-$('inst-x').onclick=function(){hideInstall(true)};
-if(deferred)showInstall();else if(isIOS)showInstall();
+window.__bipCb=function(e){deferred=e};
+window.addEventListener('appinstalled',function(){deferred=null;toast('اپ نصب شد ✓')});
 function popRefresh(){
   var les=!!(cur&&curDoc&&$('art')),dk=!!(fc&&fcv===fc.d);
   $('pop-pdf').style.display=(les||dk)?'':'none';
@@ -1243,7 +1214,7 @@ function popRefresh(){
 $('pop-inst').onclick=function(){
   $('pop').classList.remove('show');
   if(deferred)doInstall();
-  else if(isIOS)showInstall(true);
+  else if(isIOS){toast('در Safari دکمهٔ Share را بزنید و Add to Home Screen را انتخاب کنید');}
   else diagnose();
 };
 function closeDg(){$('dg').classList.remove('show')}

@@ -1,6 +1,6 @@
 /* Service worker: نصب‌پذیری + دسترسی آفلاین به صفحاتی که قبلاً باز شده‌اند.
    استراتژی: اول شبکه (تا همیشه نسخهٔ تازه بیاید)، اگر نبود از حافظهٔ پنهان. */
-const V = 'mdlib-v2';
+const V = 'mdlib-v3';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {

@@ -1,6 +1,6 @@
 /* Service worker: نصب‌پذیری + دسترسی آفلاین به صفحاتی که قبلاً باز شده‌اند.
    استراتژی: اول شبکه (تا همیشه نسخهٔ تازه بیاید)، اگر نبود از حافظهٔ پنهان. */
-const V = 'mdlib-v3';
+const V = 'mdlib-v4';
 const CORE = ['./', 'index.html', 'manifest.webmanifest', 'icons/icon-192.png', 'icons/icon-512.png'];
 
 self.addEventListener('install', e => {
@@ -13,7 +13,7 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET' || !/^https?:/.test(req.url)) return;
   e.respondWith(
-    fetch(req).then(res => {
+    fetch(req.mode !== 'navigate' && new URL(req.url).origin === location.origin ? new Request(req, { cache: 'no-cache' }) : req).then(res => {
       if (res && (res.status === 200 || res.type === 'opaque')) {
         const copy = res.clone();
         caches.open(V).then(c => c.put(req, copy)).catch(() => {});

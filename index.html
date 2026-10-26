@@ -368,6 +368,7 @@ a.dk:hover .stk i:nth-child(2){transform:rotate(14deg) translateX(10px)}
   <div class="tools">
     <button id="aa" class="ib" aria-label="تنظیمات خواندن" style="font-weight:800;font-size:.95rem">Aa</button>
     <button id="focus" class="ib" aria-pressed="false" aria-label="حالت تمرکز / تمام‌صفحه" title="حالت تمرکز (F)"><i data-ic="focus"></i></button>
+    <button id="reload" class="ib" aria-label="بارگذاری دوباره و پاک کردن کش" title="بارگذاری دوباره و پاک کردن کش"><i data-ic="reset"></i></button>
     <button id="theme" class="ib" aria-label="تغییر تم"></button>
   </div>
 </header>
@@ -487,7 +488,7 @@ function detectRepo(){
   return o&&r?{o:o,r:r}:null;
 }
 function listLib(){
-  return fetch('library.json',{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return null});
+  return fetch('library.json?v='+Date.now(),{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json()}).catch(function(){return null});
 }
 function listTree(){
   var d=detectRepo();if(!d)return Promise.reject();
@@ -505,7 +506,7 @@ function discover(){
 function getText(it){
   if(cache[it.path]!=null)return Promise.resolve(cache[it.path]);
   if(demo){var d=DEMO.filter(function(x){return x.path===it.path})[0];cache[it.path]=d.text;return Promise.resolve(d.text)}
-  return fetch(it.path.split('/').map(encodeURIComponent).join('/')).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){cache[it.path]=t;return t});
+  return fetch(it.path.split('/').map(encodeURIComponent).join('/'),{cache:'no-cache'}).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){cache[it.path]=t;return t});
 }
 
 /* ---------- نوار کناری ---------- */
@@ -633,6 +634,16 @@ pal.onclick=function(e){if(e.target===pal||e.target.closest('a'))closePal()};
 
 /* ---------- ظاهر ---------- */
 function setTheme(m){root.setAttribute('data-theme',m);var mt=document.querySelector('meta[name=theme-color]');if(mt)mt.setAttribute('content',m==='dark'?'#14130e':'#e8dbb0');st.theme=m;save();$('theme').innerHTML=ic(m==='dark'?'sun':'moon')}
+async function hardReload(){
+  var b=$('reload');b.disabled=true;b.style.opacity='.5';
+  try{toast('در حال پاک کردن کش…')}catch(e){}
+  try{if(navigator.serviceWorker){var rg=await navigator.serviceWorker.getRegistrations();await Promise.all(rg.map(function(r){return r.unregister()}))}}catch(e){}
+  try{if(window.caches){var ks=await caches.keys();await Promise.all(ks.map(function(k){return caches.delete(k)}))}}catch(e){}
+  cache={};dcache={};
+  try{await Promise.all(['library.json','index.html','sw.js','manifest.webmanifest'].map(function(u){return fetch(u+'?v='+Date.now(),{cache:'reload'}).catch(function(){})}))}catch(e){}
+  location.reload();
+}
+$('reload').onclick=hardReload;
 $('theme').onclick=function(){setTheme(root.getAttribute('data-theme')==='dark'?'light':'dark')};
 function setFont(v){root.style.setProperty('--rf',v);$('font').value=v;st.font=v;save()}
 $('font').onchange=function(){setFont(this.value)};
